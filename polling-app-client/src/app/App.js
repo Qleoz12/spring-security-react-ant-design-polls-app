@@ -18,8 +18,9 @@ import AppHeader from '../common/AppHeader';
 import NotFound from '../common/NotFound';
 import LoadingIndicator from '../common/LoadingIndicator';
 import PrivateRoute from '../common/PrivateRoute';
-
 import { Layout, notification } from 'antd';
+import { myContext } from './myContext';
+
 const { Content } = Layout;
 
 class App extends Component {
@@ -28,7 +29,8 @@ class App extends Component {
     this.state = {
       currentUser: null,
       isAuthenticated: false,
-      isLoading: true
+      isLoading: true,
+      name: 'Mahi', city:'banglore',
     }
     this.handleLogout = this.handleLogout.bind(this);
     this.loadCurrentUser = this.loadCurrentUser.bind(this);
@@ -39,6 +41,13 @@ class App extends Component {
       top: 70,
       duration: 3,
     });    
+  }
+
+  toggle =  (e) => {
+    console.log(e)
+     this.setState({
+         name:'Alice' , city:'chennai'
+     })
   }
 
   loadCurrentUser() {
@@ -91,6 +100,8 @@ class App extends Component {
     }
     
     return (
+      <myContext.Provider value={ {state :this.state, toggle:this.toggle} }>
+        {this.state.name}
         <Layout className="app-container">
           <AppHeader isAuthenticated={this.state.isAuthenticated} 
             currentUser={this.state.currentUser} 
@@ -115,6 +126,7 @@ class App extends Component {
             </div>
           </Content>
         </Layout>
+      </myContext.Provider>
     );
   }
 }
