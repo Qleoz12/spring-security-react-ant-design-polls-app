@@ -3,22 +3,36 @@ import {
     Route,
     Redirect
   } from "react-router-dom";
+import {notification } from 'antd';
   
+const PrivateRoute = ({ component: Component, authenticated,roles, ...rest }) => (
+    
   
-const PrivateRoute = ({ component: Component, authenticated, ...rest }) => (
-    <Route
+<Route
       {...rest}
+      
       render={props =>
-        authenticated ? (
-          <Component {...rest} {...props} />
-        ) : (
-          <Redirect
+        {
+        console.log(authenticated)
+        
+        if (authenticated) 
+        {
+          return  <Component {...rest} {...props} />
+        } 
+        else
+        {
+          notification.error({
+            message: 'Polling App',
+            description:'Sorry! protected route'
+          })   
+           return <Redirect
             to={{
               pathname: '/login',
               state: { from: props.location }
             }}
           />
-        )
+          }
+      }
       }
     />
 );

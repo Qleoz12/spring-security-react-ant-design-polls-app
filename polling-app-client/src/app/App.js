@@ -30,7 +30,10 @@ class App extends Component {
       currentUser: null,
       isAuthenticated: false,
       isLoading: true,
-      name: 'Mahi', city:'banglore',
+      name: 'Mahi', 
+      city:'banglore',
+      roles:''
+      
     }
     this.handleLogout = this.handleLogout.bind(this);
     this.loadCurrentUser = this.loadCurrentUser.bind(this);
@@ -50,7 +53,15 @@ class App extends Component {
      })
   }
 
+  setRoles =  (Roles) => {
+    console.log(Roles)
+     this.setState({
+        roles:  Roles  
+     })
+  }
+
   loadCurrentUser() {
+    
     getCurrentUser()
     .then(response => {
       this.setState({
@@ -100,15 +111,19 @@ class App extends Component {
     }
     
     return (
-      <myContext.Provider value={ {state :this.state, toggle:this.toggle} }>
+      <myContext.Provider value={ {state :this.state, toggle:this.toggle,  setRoles:this.setRoles} }>
         {this.state.name}
         <Layout className="app-container">
+        
           <AppHeader isAuthenticated={this.state.isAuthenticated} 
             currentUser={this.state.currentUser} 
             onLogout={this.handleLogout} />
 
           <Content className="app-content">
+            <div dangerouslySetInnerHTML={{__html: this.state.currentUser | null}} />
             <div className="container">
+              
+            
               <Switch>      
                 <Route exact path="/" 
                   render={(props) => <PollList isAuthenticated={this.state.isAuthenticated} 
@@ -120,7 +135,8 @@ class App extends Component {
                 <Route path="/users/:username" 
                   render={(props) => <Profile isAuthenticated={this.state.isAuthenticated} currentUser={this.state.currentUser} {...props}  />}>
                 </Route>
-                <PrivateRoute authenticated={this.state.isAuthenticated} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
+                
+                <PrivateRoute authenticated={this.state.isAuthenticated && this.state.roles.split(",").includes("ROLE_ADMIN")} path="/poll/new" component={NewPoll} handleLogout={this.handleLogout}></PrivateRoute>
                 <Route component={NotFound}></Route>
               </Switch>
             </div>

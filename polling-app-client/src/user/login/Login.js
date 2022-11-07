@@ -6,7 +6,7 @@ import { ACCESS_TOKEN } from '../../constants';
 import { myContext } from '../../app/myContext';
 
 import { Form, Input, Button, Icon, notification } from 'antd';
-
+import jwtDecode from 'jwt-decode';
 
 const FormItem = Form.Item;
 
@@ -76,6 +76,11 @@ class LoginForm extends Component {
                 login(loginRequest)
                 .then(response => {
                     localStorage.setItem(ACCESS_TOKEN, response.accessToken);
+
+                    const decodedToken = jwtDecode(response.accessToken);
+                    localStorage.setItem('permissions', decodedToken.roles);
+                    this.context.toggle(this.state.val)
+                    this.context.setRoles(decodedToken.roles)
                     this.props.onLogin();
                 }).catch(error => {
                     if(error.status === 401) {
