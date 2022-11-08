@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PollList from '../../poll/PollList';
+import Ranking from './Ranking';
 import { getUserProfile } from '../../util/APIUtils';
 import { Avatar, Tabs } from 'antd';
 import { getAvatarColor } from '../../util/Colors';
@@ -105,6 +106,9 @@ class Profile extends Component {
                                     </TabPane>
                                     <TabPane tab={`${this.state.user.voteCount} Votes`}  key="2">
                                         <PollList username={this.props.match.params.username} type="USER_VOTED_POLLS" />
+                                    </TabPane>
+                                    <TabPane tab={`Ranking`}  key="3">
+                                        <Ranking username={this.props.match.params.username}/>
                                     </TabPane>
                                 </Tabs>
                             </div>  

@@ -117,3 +117,12 @@ export function getUserVotedPolls(username, page, size) {
         method: 'GET'
     });
 }
+
+
+export function getRanking(username) {
+
+    return request({
+        url: API_BASE_URL + "/users/" + username + "/ranking",
+        method: 'GET'
+    });
+}

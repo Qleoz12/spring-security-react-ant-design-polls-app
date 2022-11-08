@@ -3,10 +3,7 @@ package com.example.polls.service;
 import com.example.polls.exception.BadRequestException;
 import com.example.polls.exception.ResourceNotFoundException;
 import com.example.polls.model.*;
-import com.example.polls.payload.PagedResponse;
-import com.example.polls.payload.PollRequest;
-import com.example.polls.payload.PollResponse;
-import com.example.polls.payload.VoteRequest;
+import com.example.polls.payload.*;
 import com.example.polls.repository.PollRepository;
 import com.example.polls.repository.UserRepository;
 import com.example.polls.repository.VoteRepository;
@@ -25,9 +22,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -271,5 +267,37 @@ public class PollService {
                 .collect(Collectors.toMap(User::getId, Function.identity()));
 
         return creatorMap;
+    }
+
+    public RankingResponse getRankingBy(String username, UserPrincipal currentUser)
+    {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
+        List<Vote> votes=voteRepository.findByUser(user);
+        RankingResponse rankingResponse=new RankingResponse();
+        votes.stream().forEach(x-> System.out.println(x.getCreatedAt()+" "+x.getChoice().getText()+" "+x.getPollAnswer().toString()));
+
+        for (int i = 0; i < votes.size(); i++) {
+            for (int j = 0; j < votes.get(i).getPollAnswer().size(); j++) {
+                if(votes.get(i).getPollAnswer().get(j).getChoice().getText().equalsIgnoreCase(votes.get(i).getChoice().getText()))
+                {
+                    rankingResponse.setPollsSucces(rankingResponse.getPollsSucces()+1);
+                }
+            }
+
+        }
+        Map<String, Long> votesGrouped =
+                votes
+                        .stream()
+                        .collect(Collectors.groupingBy(w -> w.getCreatedAt().atZone(ZoneId.systemDefault()).getMonth()+"/"+w.getCreatedAt().atZone(ZoneId.systemDefault()).getDayOfMonth(),Collectors.counting()));
+        List<RankingData> mapData =new ArrayList<>();
+        for (var entry : votesGrouped.entrySet()) {
+            mapData.add(new RankingData(entry.getKey(),entry.getValue()));
+        }
+        rankingResponse.setPollsFailed(votes.size()-rankingResponse.getPollsSucces());
+        rankingResponse.setTotalVotes(votes.size());
+        rankingResponse.setVotesGrouped(mapData);
+        return rankingResponse;
+
     }
 }

@@ -1,6 +1,7 @@
 package com.example.polls.repository;
 
 import com.example.polls.model.ChoiceVoteCount;
+import com.example.polls.model.User;
 import com.example.polls.model.Vote;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -30,5 +31,7 @@ public interface VoteRepository extends JpaRepository<Vote, Long> {
 
     @Query("SELECT v.poll.id FROM Vote v WHERE v.user.id = :userId")
     Page<Long> findVotedPollIdsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    List<Vote> findByUser(User user);
 }
 

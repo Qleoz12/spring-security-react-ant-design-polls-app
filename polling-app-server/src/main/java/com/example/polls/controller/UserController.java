@@ -82,4 +82,11 @@ public class UserController {
         return pollService.getPollsVotedBy(username, currentUser, page, size);
     }
 
+    @GetMapping("/users/{username}/ranking")
+    public RankingResponse getRankingBy(@PathVariable(value = "username") String username,
+                                                       @CurrentUser UserPrincipal currentUser)
+    {
+         return pollService.getRankingBy(username, currentUser);
+    }
+
 }

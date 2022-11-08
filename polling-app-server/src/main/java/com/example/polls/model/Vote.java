@@ -2,6 +2,7 @@ package com.example.polls.model;
 
 import com.example.polls.model.audit.DateAudit;
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "votes", uniqueConstraints = {
@@ -26,6 +27,9 @@ public class Vote extends DateAudit {
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @OneToMany(mappedBy = "vote",fetch = FetchType.LAZY,orphanRemoval = true)
+    private List<PollAnswer> pollAnswer;
 
     public Long getId() {
         return id;
@@ -58,4 +62,13 @@ public class Vote extends DateAudit {
     public void setUser(User user) {
         this.user = user;
     }
+
+    public List<PollAnswer> getPollAnswer() {
+        return pollAnswer;
+    }
+
+    public void setPollAnswer(List<PollAnswer> pollAnswer) {
+        this.pollAnswer = pollAnswer;
+    }
+
 }
