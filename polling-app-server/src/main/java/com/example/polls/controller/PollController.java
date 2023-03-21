@@ -2,6 +2,7 @@ package com.example.polls.controller;
 
 import com.example.polls.model.*;
 import com.example.polls.payload.*;
+import com.example.polls.provider.IAResponse;
 import com.example.polls.repository.PollRepository;
 import com.example.polls.repository.UserRepository;
 import com.example.polls.repository.VoteRepository;
@@ -69,6 +70,13 @@ public class PollController {
                          @PathVariable Long pollId,
                          @Valid @RequestBody VoteRequest voteRequest) {
         return pollService.castVoteAndGetUpdatedPoll(pollId, voteRequest, currentUser);
+    }
+
+    @PostMapping("/dinamic")
+    @PreAuthorize("hasRole('ADMIN')")
+    public IAResponse dinamic(@CurrentUser UserPrincipal currentUser,
+                              @Valid @RequestBody PollDinamicRequest request) {
+        return pollService.dinamicPoll(request, currentUser);
     }
 
 }

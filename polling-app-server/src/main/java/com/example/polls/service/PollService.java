@@ -4,6 +4,7 @@ import com.example.polls.exception.BadRequestException;
 import com.example.polls.exception.ResourceNotFoundException;
 import com.example.polls.model.*;
 import com.example.polls.payload.*;
+import com.example.polls.provider.IAResponse;
 import com.example.polls.repository.PollRepository;
 import com.example.polls.repository.UserRepository;
 import com.example.polls.repository.VoteRepository;
@@ -38,6 +39,9 @@ public class PollService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    ApiClient apiClient;
 
     private static final Logger logger = LoggerFactory.getLogger(PollService.class);
 
@@ -299,5 +303,11 @@ public class PollService {
         rankingResponse.setVotesGrouped(mapData);
         return rankingResponse;
 
+    }
+
+    public IAResponse dinamicPoll(PollDinamicRequest request, UserPrincipal currentUser){
+        ApiIArequest providerRequest= new ApiIArequest();
+        providerRequest.setQuestion(request.getQuestion());
+        return apiClient.generatePoll(providerRequest);
     }
 }
