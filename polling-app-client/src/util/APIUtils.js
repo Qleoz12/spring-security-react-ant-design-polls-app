@@ -126,3 +126,15 @@ export function getRanking(username) {
         method: 'GET'
     });
 }
+
+export function getPolls(question) {
+
+    const signupRequest = {
+        question: question
+    };
+    return request({
+        url: API_BASE_URL + "/polls/dinamic",
+        method: 'POST',
+        body: JSON.stringify(signupRequest)
+    });
+}
