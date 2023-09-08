@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import ReactDOM from "react-dom";
 import { Steps , Divider} from 'antd';
-import 'antd/dist/antd.css';
+// import 'antd/dist/antd.css';
+import 'antd/dist/reset.css';
 import LoadingIndicator  from '../../common/LoadingIndicator';
 import './Profile.css';
 import NotFound from '../../common/NotFound';

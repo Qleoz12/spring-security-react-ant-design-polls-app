@@ -66,8 +66,10 @@
     font-size: 20px;
   }
 
-  .poll-icon {
+
+  .app-menu > li > span >a > div {
     margin-top: -4px;
+    max-width: 1.7rem;
   }
 
 @media (max-width: 768px) {

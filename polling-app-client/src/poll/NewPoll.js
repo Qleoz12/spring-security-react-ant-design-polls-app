@@ -2,10 +2,13 @@ import React, { Component } from 'react';
 import { createPoll } from '../util/APIUtils';
 import { MAX_CHOICES, POLL_QUESTION_MAX_LENGTH, POLL_CHOICE_MAX_LENGTH } from '../constants';
 import './NewPoll.css';  
-import { Form, Input, Button, Icon, Select, Col, notification } from 'antd';
+import { Form, Input, Button, Select, Col, notification,Badge,Divider } from 'antd';
+import { HomeOutlined,CloseOutlined} from '@ant-design/icons';
+import NewPollDinamic from '../poll/NewPollDinamic';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
+
 
 class NewPoll extends Component {
     constructor(props) {
@@ -18,11 +21,19 @@ class NewPoll extends Component {
                 text: ''
             }, {
                 text: ''
+            },{
+                text: ''
+            }, {
+                text: ''
             }],
             pollLength: {
                 days: 1,
                 hours: 0
-            }
+            },
+            answers:[],
+            dinamicTopic:null,
+            dinamicTopicInput:""
+
         };
         this.addChoice = this.addChoice.bind(this);
         this.removeChoice = this.removeChoice.bind(this);
@@ -32,6 +43,10 @@ class NewPoll extends Component {
         this.handlePollDaysChange = this.handlePollDaysChange.bind(this);
         this.handlePollHoursChange = this.handlePollHoursChange.bind(this);
         this.isFormInvalid = this.isFormInvalid.bind(this);
+        this.handlePollAnswerChange = this.handlePollAnswerChange.bind(this);
+        this.handledinamicTopicChange = this.handledinamicTopicChange.bind(this)
+        this.handledinamicTopicSubmit = this.handledinamicTopicSubmit.bind(this)
+        
     }
 
     addChoice(event) {
@@ -138,6 +153,22 @@ class NewPoll extends Component {
     }
 
 
+    handlePollAnswerChange(value) {
+        const answers = this.state.answers.slice();
+        console.log()
+        
+        if(answers.includes(value))
+        {
+            answers.splice(answers.indexOf (value),1);
+        }
+        else{
+            answers.push(value)
+        }
+        this.setState({
+            answers: answers
+        });
+    }
+
     handlePollDaysChange(value) {
         const pollLength = Object.assign(this.state.pollLength, {days: value});
         this.setState({
@@ -165,6 +196,22 @@ class NewPoll extends Component {
         }
     }
 
+    handledinamicTopicChange(event) {
+        const value = event.target.value;
+        this.setState({
+            dinamicTopicInput: value
+        });
+        
+    }
+
+    handledinamicTopicSubmit(event) {
+        const value = event.target.value;
+        this.setState({
+            dinamicTopic: this.state.dinamicTopicInput
+        });
+        
+    }
+
     render() {
         const choiceViews = [];
         this.state.choices.forEach((choice, index) => {
@@ -189,8 +236,34 @@ class NewPoll extends Component {
                         {choiceViews}
                         <FormItem className="poll-form-row">
                             <Button type="dashed" onClick={this.addChoice} disabled={this.state.choices.length === MAX_CHOICES}>
-                                <Icon type="plus" /> Add a choice
+                                {/* <Icon type="plus" />  */}
+                                Add a choice
                             </Button>
+                        </FormItem>
+                        <FormItem className="poll-form-row">
+                            <span style = {{ marginRight: '18px' }}>
+                                    <Select 
+                                        name="days"
+                                        defaultValue="1" 
+                                        onChange={this.handlePollAnswerChange}
+                                        // value={this.state.pollLength.days}
+                                        style={{ width: 60 }} >
+                                        {
+                                            this.state.choices.slice().filter(x=> x.text.length>0).map(i => 
+                                                <Option key={i.text}>{i.text}</Option>                                        
+                                            )
+                                        }
+                                    </Select> &nbsp;Days
+                                    <Divider>respuestas a encuesta</Divider>
+                                    {
+                                    this.state.answers.slice().map(i => 
+                                        <Badge
+                                        className="site-badge-count-109"
+                                        count={i ? i : 0}
+                                        style={{ backgroundColor: '#52c41a' }}/>                                       
+                                            )
+                                    }
+                            </span>
                         </FormItem>
                         <FormItem className="poll-form-row">
                             <Col xs={24} sm={4}>
@@ -205,7 +278,7 @@ class NewPoll extends Component {
                                         value={this.state.pollLength.days}
                                         style={{ width: 60 }} >
                                         {
-                                            Array.from(Array(8).keys()).map(i => 
+                                            Array.from(Array(365).keys()).map(i => 
                                                 <Option key={i}>{i}</Option>                                        
                                             )
                                         }
@@ -235,6 +308,29 @@ class NewPoll extends Component {
                                 className="create-poll-form-button">Create Poll</Button>
                         </FormItem>
                     </Form>
+                    <Form>
+                    <FormItem className="poll-form-row">
+                            <Col xs={24} sm={4}>
+                                tema : 
+                            </Col>
+                            <Col>
+                            <Input 
+                            placeholder = {'Choice '}
+                            size="large"
+                            value={this.state.dinamicTopicInput}
+                            onChange={(event) => this.handledinamicTopicChange(event)}
+                           />
+                            </Col>
+                    </FormItem>
+                    <FormItem className="poll-form-row">
+                            <Button type="primary" 
+                                htmlType="submit" 
+                                size="large"
+                                onClick={this.handledinamicTopicSubmit}
+                                className="create-poll-form-button">obtener preguntas</Button>
+                        </FormItem>
+                        <NewPollDinamic DinamicTopic={this.state.dinamicTopic}></NewPollDinamic>
+                    </Form>
                 </div>    
             </div>
         );
@@ -254,7 +350,7 @@ function PollChoice(props) {
 
             {
                 props.choiceNumber > 1 ? (
-                <Icon
+                <CloseOutlined 
                     className="dynamic-delete-button"
                     type="close"
                     disabled={props.choiceNumber <= 1}

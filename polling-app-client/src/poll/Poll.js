@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import './Poll.css';
-import { Avatar, Icon } from 'antd';
+import { Avatar } from 'antd';
 import { Link } from 'react-router-dom';
 import { getAvatarColor } from '../util/Colors';
 import { formatDateTime } from '../util/Helpers';
-
+import {CheckCircleOutlined} from '@ant-design/icons'
 import { Radio, Button } from 'antd';
 const RadioGroup = Radio.Group;
 
@@ -136,7 +136,7 @@ function CompletedOrVotedPollChoice(props) {
                 </span>
                 {
                     props.isSelected ? (
-                    <Icon
+                    <CheckCircleOutlined
                         className="selected-choice-icon"
                         type="check-circle-o"
                     /> ): null

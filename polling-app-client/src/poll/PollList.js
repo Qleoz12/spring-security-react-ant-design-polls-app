@@ -3,7 +3,8 @@ import { getAllPolls, getUserCreatedPolls, getUserVotedPolls } from '../util/API
 import Poll from './Poll';
 import { castVote } from '../util/APIUtils';
 import LoadingIndicator  from '../common/LoadingIndicator';
-import { Button, Icon, notification } from 'antd';
+import { Button, notification } from 'antd';
+// import Icon from '@ant-design/icons';
 import { POLL_LIST_SIZE } from '../constants';
 import { withRouter } from 'react-router-dom';
 import './PollList.css';
@@ -166,7 +167,7 @@ class PollList extends Component {
                     !this.state.isLoading && !this.state.last ? (
                         <div className="load-more-polls"> 
                             <Button type="dashed" onClick={this.handleLoadMore} disabled={this.state.isLoading}>
-                                <Icon type="plus" /> Load more
+                                {/* <Icon type="plus" /> Load more */}
                             </Button>
                         </div>): null
                 }              

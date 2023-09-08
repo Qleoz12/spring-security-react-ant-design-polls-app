@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { getPolls } from '../util/APIUtils';
 import './NewPoll.css';  
-import { Form, Input, Button, Icon, Select, Col, notification,Badge,Divider } from 'antd';
+import { Form, Input, Button, Select, Col, notification,Badge,Divider } from 'antd';
+import { CloseOutlined } from '@ant-design/icons';
 const Option = Select.Option;
 const FormItem = Form.Item;
 const { TextArea } = Input
@@ -146,12 +147,13 @@ function PollChoice(props) {
 
           {
               props.choiceNumber > 1 ? (
-              <Icon
+                <CloseOutlined 
                   className="dynamic-delete-button"
                   type="close"
                   disabled={props.choiceNumber <= 1}
                   onClick={() => props.removeChoice(props.choiceNumber)}
-              /> ): null
+              />
+               ): null
           }    
       </FormItem>
   );

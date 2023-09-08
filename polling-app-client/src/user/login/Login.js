@@ -5,7 +5,8 @@ import { Link } from 'react-router-dom';
 import { ACCESS_TOKEN } from '../../constants';
 import { myContext } from '../../app/myContext';
 
-import { Form, Input, Button, Icon, notification } from 'antd';
+import { Form, Input, Button, notification } from 'antd';
+import {UserOutlined,LockOutlined} from '@ant-design/icons'
 import jwtDecode from 'jwt-decode';
 
 const FormItem = Form.Item;
@@ -118,7 +119,7 @@ class LoginForm extends Component {
                                     rules: [{ required: true, message: 'Please input your username or email!' }],
                                 })(
                                     <Input
-                                        prefix={<Icon type="user" />}
+                                        prefix={<UserOutlined  type="user" />}
                                         size="large"
                                         name="usernameOrEmail"
                                         placeholder="Username or Email" />
@@ -129,7 +130,7 @@ class LoginForm extends Component {
                                     rules: [{ required: true, message: 'Please input your Password!' }],
                                 })(
                                     <Input
-                                        prefix={<Icon type="lock" />}
+                                        prefix={<LockOutlined  type="lock" />}
                                         size="large"
                                         name="password"
                                         type="password"
