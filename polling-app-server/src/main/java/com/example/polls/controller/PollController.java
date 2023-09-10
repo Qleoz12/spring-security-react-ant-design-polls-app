@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import javax.validation.Valid;
 import java.net.URI;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/polls")
@@ -62,6 +63,12 @@ public class PollController {
     public PollResponse getPollById(@CurrentUser UserPrincipal currentUser,
                                     @PathVariable Long pollId) {
         return pollService.getPollById(pollId, currentUser);
+    }
+
+    @GetMapping("/group/{id}")
+    public List<PollResponse> getPollByGroupId(@CurrentUser UserPrincipal currentUser,
+                                          @PathVariable Long id) {
+        return pollService.getPollByGroup(id, currentUser);
     }
 
     @PostMapping("/{pollId}/votes")

@@ -1,5 +1,8 @@
 package com.example.polls.provider;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Usage{
     public int prompt_tokens;
     public int completion_tokens;

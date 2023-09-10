@@ -11,6 +11,8 @@ import com.example.polls.repository.VoteRepository;
 import com.example.polls.security.UserPrincipal;
 import com.example.polls.util.AppConstants;
 import com.example.polls.util.ModelMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +54,7 @@ public class PollService {
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
         Page<Poll> polls = pollRepository.findAll(pageable);
 
-        if(polls.getNumberOfElements() == 0) {
+        if (polls.getNumberOfElements() == 0) {
             return new PagedResponse<>(Collections.emptyList(), polls.getNumber(),
                     polls.getSize(), polls.getTotalElements(), polls.getTotalPages(), polls.isLast());
         }
@@ -176,19 +178,39 @@ public class PollService {
 
         // Retrieve vote done by logged in user
         Vote userVote = null;
-        if(currentUser != null) {
+        if (currentUser != null) {
             userVote = voteRepository.findByUserIdAndPollId(currentUser.getId(), pollId);
         }
 
         return ModelMapper.mapPollToPollResponse(poll, choiceVotesMap,
-                creator, userVote != null ? userVote.getChoice().getId(): null);
+                creator, userVote != null ? userVote.getChoice().getId() : null);
+    }
+
+    public List<PollResponse> getPollByGroup(Long pollId, UserPrincipal currentUser) {
+        List<Poll> polls = pollRepository.findByPollGroupId(pollId);
+
+        List<Long> pollIds = polls.stream().map(Poll::getId).collect(Collectors.toList());
+        Map<Long, Long> choiceVoteCountMap = getChoiceVoteCountMap(pollIds);
+        Map<Long, Long> pollUserVoteMap = getPollUserVoteMap(currentUser, pollIds);
+        Map<Long, User> creatorMap = getPollCreatorMap(polls);
+
+        List<PollResponse> pollResponses = polls.stream().map(poll -> {
+            return ModelMapper.mapPollToPollResponse(poll,
+                    choiceVoteCountMap,
+                    creatorMap.get(poll.getCreatedBy()),
+                    pollUserVoteMap == null ? null : pollUserVoteMap.getOrDefault(poll.getId(), null));
+        }).collect(Collectors.toList());
+
+
+        return pollResponses;
+
     }
 
     public PollResponse castVoteAndGetUpdatedPoll(Long pollId, VoteRequest voteRequest, UserPrincipal currentUser) {
         Poll poll = pollRepository.findById(pollId)
                 .orElseThrow(() -> new ResourceNotFoundException("Poll", "id", pollId));
 
-        if(poll.getExpirationDateTime().isBefore(Instant.now())) {
+        if (poll.getExpirationDateTime().isBefore(Instant.now())) {
             throw new BadRequestException("Sorry! This Poll has already expired");
         }
 
@@ -228,11 +250,11 @@ public class PollService {
 
 
     private void validatePageNumberAndSize(int page, int size) {
-        if(page < 0) {
+        if (page < 0) {
             throw new BadRequestException("Page number cannot be less than zero.");
         }
 
-        if(size > AppConstants.MAX_PAGE_SIZE) {
+        if (size > AppConstants.MAX_PAGE_SIZE) {
             throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
         }
     }
@@ -250,7 +272,7 @@ public class PollService {
     private Map<Long, Long> getPollUserVoteMap(UserPrincipal currentUser, List<Long> pollIds) {
         // Retrieve Votes done by the logged in user to the given pollIds
         Map<Long, Long> pollUserVoteMap = null;
-        if(currentUser != null) {
+        if (currentUser != null) {
             List<Vote> userVotes = voteRepository.findByUserIdAndPollIdIn(currentUser.getId(), pollIds);
 
             pollUserVoteMap = userVotes.stream()
@@ -273,19 +295,17 @@ public class PollService {
         return creatorMap;
     }
 
-    public RankingResponse getRankingBy(String username, UserPrincipal currentUser)
-    {
+    public RankingResponse getRankingBy(String username, UserPrincipal currentUser) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "username", username));
-        List<Vote> votes=voteRepository.findByUser(user);
-        RankingResponse rankingResponse=new RankingResponse();
-        votes.stream().forEach(x-> System.out.println(x.getCreatedAt()+" "+x.getChoice().getText()+" "+x.getPollAnswer().toString()));
+        List<Vote> votes = voteRepository.findByUser(user);
+        RankingResponse rankingResponse = new RankingResponse();
+        votes.stream().forEach(x -> System.out.println(x.getCreatedAt() + " " + x.getChoice().getText() + " " + x.getPollAnswer().toString()));
 
         for (int i = 0; i < votes.size(); i++) {
             for (int j = 0; j < votes.get(i).getPollAnswer().size(); j++) {
-                if(votes.get(i).getPollAnswer().get(j).getChoice().getText().equalsIgnoreCase(votes.get(i).getChoice().getText()))
-                {
-                    rankingResponse.setPollsSucces(rankingResponse.getPollsSucces()+1);
+                if (votes.get(i).getPollAnswer().get(j).getChoice().getText().equalsIgnoreCase(votes.get(i).getChoice().getText())) {
+                    rankingResponse.setPollsSucces(rankingResponse.getPollsSucces() + 1);
                 }
             }
 
@@ -293,21 +313,31 @@ public class PollService {
         Map<String, Long> votesGrouped =
                 votes
                         .stream()
-                        .collect(Collectors.groupingBy(w -> w.getCreatedAt().atZone(ZoneId.systemDefault()).getMonth()+"/"+w.getCreatedAt().atZone(ZoneId.systemDefault()).getDayOfMonth(),Collectors.counting()));
-        List<RankingData> mapData =new ArrayList<>();
+                        .collect(Collectors.groupingBy(w -> w.getCreatedAt().atZone(ZoneId.systemDefault()).getMonth() + "/" + w.getCreatedAt().atZone(ZoneId.systemDefault()).getDayOfMonth(), Collectors.counting()));
+        List<RankingData> mapData = new ArrayList<>();
         for (var entry : votesGrouped.entrySet()) {
-            mapData.add(new RankingData(entry.getKey(),entry.getValue()));
+            mapData.add(new RankingData(entry.getKey(), entry.getValue()));
         }
-        rankingResponse.setPollsFailed(votes.size()-rankingResponse.getPollsSucces());
+        rankingResponse.setPollsFailed(votes.size() - rankingResponse.getPollsSucces());
         rankingResponse.setTotalVotes(votes.size());
         rankingResponse.setVotesGrouped(mapData);
         return rankingResponse;
 
     }
 
-    public IAResponse dinamicPoll(PollDinamicRequest request, UserPrincipal currentUser){
-        ApiIArequest providerRequest= new ApiIArequest();
+    public IAResponse dinamicPoll(PollDinamicRequest request, UserPrincipal currentUser) {
+        ApiIArequest providerRequest = new ApiIArequest();
         providerRequest.setQuestion(request.getQuestion());
-        return apiClient.generatePoll(providerRequest);
+//        return apiClient.generatePoll(providerRequest);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonString = "{\"id\":\"1234\",\"object\":\"response\",\"created\":1653443200,\"model\":\"question-answering\",\"choices\":[{\"text\":\"La respuesta es A\",\"questions\":[{\"text\":\"¿Cuál es la respuesta correcta?\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":\"A\",\"index\":0},{\"text\":\"¿Qué letra es la primera del alfabeto?\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":\"A\",\"index\":1}],\"index\":0},{\"text\":\"La respuesta es B\",\"questions\":[{\"text\":\"¿Cuál es la respuesta correcta?\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":\"A\",\"index\":0},{\"text\":\"¿Qué letra es la segunda del alfabeto?\",\"options\":[\"A\",\"B\",\"C\",\"D\"],\"answer\":\"B\",\"index\":1}],\"index\":1}],\"usage\":{\"text_characters\":203,\"model_id\":\"abcdef12345\",\"prediction_duration\":0.123},\"index\":0,\"logprobs\":{},\"finish_reason\":\"stop\"}";
+        try {
+            IAResponse iaResponse = objectMapper.readValue(jsonString, IAResponse.class);
+            return iaResponse;
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+
+        return null;
     }
 }

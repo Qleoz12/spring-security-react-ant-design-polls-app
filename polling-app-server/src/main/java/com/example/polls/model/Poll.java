@@ -34,8 +34,13 @@ public class Poll extends UserDateAudit {
     @BatchSize(size = 30)
     private List<Choice> choices = new ArrayList<>();
 
+
     @NotNull
     private Instant expirationDateTime;
+
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "poll_group_id", nullable = false)
+    private PollGroup pollGroup;
 
     public Long getId() {
         return id;
@@ -77,5 +82,13 @@ public class Poll extends UserDateAudit {
     public void removeChoice(Choice choice) {
         choices.remove(choice);
         choice.setPoll(null);
+    }
+
+    public PollGroup getPollGroup() {
+        return pollGroup;
+    }
+
+    public void setPollGroup(PollGroup pollGroup) {
+        this.pollGroup = pollGroup;
     }
 }
