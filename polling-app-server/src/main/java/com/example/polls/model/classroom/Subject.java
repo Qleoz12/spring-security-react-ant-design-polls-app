@@ -1,10 +1,12 @@
 package com.example.polls.model.classroom;
 
+import com.example.polls.model.audit.UserDateAudit;
+
 import javax.persistence.*;
 
 @Entity
 @Table(name = "subjects")
-public class Subject {
+public class Subject extends UserDateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "subject_id")

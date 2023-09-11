@@ -61,6 +61,7 @@ public class ClassRoomService {
     public Subject create(SubjectRequest request) {
         Subject subject = new Subject();
         subject.setSubjectName(request.getName());
+        subject.setDepartment(request.getDepartment());
 
         return subjectsRepository.save(subject);
     }
