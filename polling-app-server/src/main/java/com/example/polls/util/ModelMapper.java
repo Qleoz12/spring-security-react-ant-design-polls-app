@@ -2,8 +2,10 @@ package com.example.polls.util;
 
 import com.example.polls.model.Poll;
 import com.example.polls.model.User;
+import com.example.polls.model.classroom.Subject;
 import com.example.polls.payload.ChoiceResponse;
 import com.example.polls.payload.PollResponse;
+import com.example.polls.payload.SubjectResponse;
 import com.example.polls.payload.UserSummary;
 
 import java.time.Instant;
@@ -50,5 +52,10 @@ public class ModelMapper {
     }
 
 
-
+    public static SubjectResponse toResponse(Subject subject) {
+        SubjectResponse subjectResponse= new SubjectResponse();
+        subjectResponse.setSubjectName(subject.getSubjectName());
+        subjectResponse.setDepartment(subject.getDepartment());
+        return subjectResponse;
+    }
 }
