@@ -1,12 +1,11 @@
 package com.example.polls.util;
 
 import com.example.polls.model.Poll;
+import com.example.polls.model.PollGroup;
 import com.example.polls.model.User;
 import com.example.polls.model.classroom.Subject;
-import com.example.polls.payload.ChoiceResponse;
-import com.example.polls.payload.PollResponse;
-import com.example.polls.payload.SubjectResponse;
-import com.example.polls.payload.UserSummary;
+import com.example.polls.model.classroom.SubjectPollProfessor;
+import com.example.polls.payload.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -52,10 +51,40 @@ public class ModelMapper {
     }
 
 
+    public static PollResponse mapPollToPollResponseSimple(Poll poll) {
+        PollResponse pollResponse = new PollResponse();
+        pollResponse.setId(poll.getId());
+        pollResponse.setQuestion(poll.getQuestion());
+        pollResponse.setCreationDateTime(poll.getCreatedAt());
+        pollResponse.setExpirationDateTime(poll.getExpirationDateTime());
+        pollResponse.setGroupid(poll.getPollGroup().getId());
+        Instant now = Instant.now();
+        pollResponse.setExpired(poll.getExpirationDateTime().isBefore(now));
+
+        return pollResponse;
+    }
+
     public static SubjectResponse toResponse(Subject subject) {
         SubjectResponse subjectResponse= new SubjectResponse();
         subjectResponse.setSubjectName(subject.getSubjectName());
         subjectResponse.setDepartment(subject.getDepartment());
         return subjectResponse;
+    }
+
+    public static PollGroupResponse toResponse(PollGroup pollGroup) {
+        PollGroupResponse response= new PollGroupResponse();
+        response.setId(pollGroup.getId());
+        response.setName(pollGroup.getName());
+
+        return response;
+    }
+
+    public static SubjectPollProfessorResponse toResponse(SubjectPollProfessor subjectPollProfessor) {
+        SubjectPollProfessorResponse response= new SubjectPollProfessorResponse();
+        response.setTeacherId(subjectPollProfessor.getTeacher().getId());
+        response.setSubjectId(subjectPollProfessor.getSubject().getSubjectId());
+        response.setPollGroupId(subjectPollProfessor.getPollGroup().getId());
+        response.setSubjectPollProfessorId(subjectPollProfessor.getSubjectPollProfessorId());
+        return response;
     }
 }

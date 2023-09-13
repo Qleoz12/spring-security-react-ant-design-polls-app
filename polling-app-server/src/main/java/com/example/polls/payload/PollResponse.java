@@ -14,6 +14,9 @@ public class PollResponse {
     private Instant expirationDateTime;
     private Boolean isExpired;
 
+
+    private Long groupid;
+
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private Long selectedChoice;
     private Long totalVotes;
@@ -89,5 +92,13 @@ public class PollResponse {
 
     public void setTotalVotes(Long totalVotes) {
         this.totalVotes = totalVotes;
+    }
+
+    public Long getGroupid() {
+        return groupid;
+    }
+
+    public void setGroupid(Long groupid) {
+        this.groupid = groupid;
     }
 }

@@ -1,12 +1,13 @@
 package com.example.polls.service;
 
 import com.example.polls.exception.ResourceNotFoundException;
-import com.example.polls.model.ChoiceVoteCount;
-import com.example.polls.model.Poll;
-import com.example.polls.model.User;
-import com.example.polls.model.Vote;
+import com.example.polls.model.*;
 import com.example.polls.model.classroom.Subject;
+import com.example.polls.model.classroom.SubjectPollProfessor;
+import com.example.polls.model.classroom.Teacher;
 import com.example.polls.payload.*;
+import com.example.polls.repository.PollGroupRepository;
+import com.example.polls.repository.SubjectPollProfessorRepository;
 import com.example.polls.repository.SubjectsRepository;
 import com.example.polls.security.UserPrincipal;
 import com.example.polls.util.ModelMapper;
@@ -21,14 +22,18 @@ import org.springframework.stereotype.Service;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 public class ClassRoomService {
 
     @Autowired
     private SubjectsRepository subjectsRepository;
+
+    @Autowired
+    private PollGroupRepository pollGroupRepository;
+
+    @Autowired
+    private SubjectPollProfessorRepository subjectPollProfessorRepository;
 
 
     @Autowired
@@ -64,6 +69,26 @@ public class ClassRoomService {
         subject.setDepartment(request.getDepartment());
 
         return subjectsRepository.save(subject);
+    }
+
+    public SubjectPollProfessorResponse asociate(UserPrincipal currentUser, SubjectPollProfessorResponse request) {
+        SubjectPollProfessor subjectPollProfessor= new SubjectPollProfessor();
+
+        Subject subject=subjectsRepository.findById(request.getSubjectId())
+                .orElseThrow(() -> new ResourceNotFoundException("subject", "id", request));
+
+        PollGroup pollGroup=pollGroupRepository.findById(request.getPollGroupId())
+                .orElseThrow(() -> new ResourceNotFoundException("pollGroup", "id", request));
+
+
+        User teacher= new User();
+        teacher.setId(currentUser.getId());
+
+        subjectPollProfessor.setSubject(subject);
+        subjectPollProfessor.setPollGroup(pollGroup);
+        subjectPollProfessor.setTeacher(teacher);
+
+        return ModelMapper.toResponse(subjectPollProfessorRepository.save(subjectPollProfessor));
     }
 
 

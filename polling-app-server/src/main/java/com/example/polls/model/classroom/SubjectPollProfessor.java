@@ -1,6 +1,8 @@
 package com.example.polls.model.classroom;
 
 import com.example.polls.model.Poll;
+import com.example.polls.model.PollGroup;
+import com.example.polls.model.User;
 
 import javax.persistence.*;
 
@@ -22,7 +24,11 @@ public class SubjectPollProfessor {
 
     @ManyToOne
     @JoinColumn(name = "teacher_id")
-    private Teacher teacher;
+    private User teacher;
+
+    @ManyToOne
+    @JoinColumn(name = "poll_group_id")
+    private PollGroup pollGroup;
 
     public Long getSubjectPollProfessorId() {
         return subjectPollProfessorId;
@@ -48,11 +54,19 @@ public class SubjectPollProfessor {
         this.poll = poll;
     }
 
-    public Teacher getTeacher() {
+    public User getTeacher() {
         return teacher;
     }
 
-    public void setTeacher(Teacher teacher) {
+    public void setTeacher(User teacher) {
         this.teacher = teacher;
+    }
+
+    public PollGroup getPollGroup() {
+        return pollGroup;
+    }
+
+    public void setPollGroup(PollGroup pollGroup) {
+        this.pollGroup = pollGroup;
     }
 }

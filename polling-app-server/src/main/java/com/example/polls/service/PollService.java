@@ -5,6 +5,7 @@ import com.example.polls.exception.ResourceNotFoundException;
 import com.example.polls.model.*;
 import com.example.polls.payload.*;
 import com.example.polls.provider.IAResponse;
+import com.example.polls.repository.PollGroupRepository;
 import com.example.polls.repository.PollRepository;
 import com.example.polls.repository.UserRepository;
 import com.example.polls.repository.VoteRepository;
@@ -35,6 +36,9 @@ public class PollService {
 
     @Autowired
     private PollRepository pollRepository;
+
+    @Autowired
+    private PollGroupRepository pollGroupRepository;
 
     @Autowired
     private VoteRepository voteRepository;
@@ -145,9 +149,12 @@ public class PollService {
     }
 
 
-    public Poll createPoll(PollRequest pollRequest) {
+    public Poll createPoll(PollRequest pollRequest,PollGroup pollGroup) {
+
+
         Poll poll = new Poll();
         poll.setQuestion(pollRequest.getQuestion());
+        poll.setPollGroup(pollGroup);
 
         pollRequest.getChoices().forEach(choiceRequest -> {
             poll.addChoice(new Choice(choiceRequest.getText()));
@@ -160,6 +167,21 @@ public class PollService {
         poll.setExpirationDateTime(expirationDateTime);
 
         return pollRepository.save(poll);
+    }
+
+    public List<Poll> createPollGroup(PollGroupRequest request) {
+
+        List<Poll> polls = new ArrayList<>();
+        PollGroup pollGroup=pollGroupRepository.findById(request.getGroupId().longValue())
+                .orElseThrow(
+                        () -> new ResourceNotFoundException("pollGroup", "id", request));
+        for(PollRequest pollRequest : request.getPollRequests()) {
+
+            Poll poll = createPoll(pollRequest,pollGroup);
+            polls.add(poll);
+        }
+        return polls;
+
     }
 
     public PollResponse getPollById(Long pollId, UserPrincipal currentUser) {
@@ -340,4 +362,6 @@ public class PollService {
 
         return null;
     }
+
+
 }

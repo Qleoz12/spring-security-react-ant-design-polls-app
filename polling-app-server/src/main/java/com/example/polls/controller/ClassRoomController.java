@@ -61,4 +61,11 @@ public class ClassRoomController {
         return service.getAll(currentUser,page,size);
     }
 
+    @PostMapping("/subjects/group/asociate")
+    public SubjectPollProfessorResponse asociate(@CurrentUser UserPrincipal currentUser,
+                                                 @Valid @RequestBody  SubjectPollProfessorResponse request) {
+
+        return service.asociate(currentUser, request);
+    }
+
 }
